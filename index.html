@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Todo VR - Mobile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+    #ui {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: calc(100% - 20px);
+      display: flex;
+      flex-direction: row;
+      gap: 5px;
+      z-index: 10;
+    }
+    input, button {
+      font-size: 1.2em;
+      padding: 10px;
+      flex: 1;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Mobile Input -->
+<div id="ui">
+  <input type="text" id="todoInput" placeholder="Add todo..." />
+  <button onclick="addTodo()">Add</button>
+</div>
+
+<!-- VR Scene -->
+<a-scene>
+  <a-entity position="0 1.6 0">
+    <a-camera>
+      <a-cursor></a-cursor>
+    </a-camera>
+  </a-entity>
+
+  <a-light type="ambient" intensity="1"></a-light>
+
+  <!-- Background board -->
+  <a-plane position="0 1.3 -3" width="3" height="2" color="#333" opacity="0.7"></a-plane>
+
+  <!-- 3D button -->
+  <a-box position="1 1.0 -3" color="green" depth="0.1" height="0.3" width="0.8"
+         onclick="addTodo()">
+    <a-text value="Add Todo" align="center" color="white"
+            position="0 0 0.06" width="4"></a-text>
+  </a-box>
+</a-scene>
+
+<script>
+  let todoY = 0.8;
+  let todoId = 0;
+
+  function addTodo() {
+    const input = document.getElementById("todoInput");
+    const text = input.value.trim();
+    if (!text) return;
+
+    const scene = document.querySelector("a-scene");
+    const group = document.createElement("a-entity");
+    const currentId = `todo-${todoId++}`;
+
+    // Create the todo text
+    const todoText = document.createElement("a-text");
+    todoText.setAttribute("value", text);
+    todoText.setAttribute("position", "-1 0 0");
+    todoText.setAttribute("color", "white");
+    todoText.setAttribute("width", "2.5");
+
+    // Create the delete button (red box)
+    const deleteBtn = document.createElement("a-box");
+    deleteBtn.setAttribute("position", "1.2 0 0");
+    deleteBtn.setAttribute("depth", "0.1");
+    deleteBtn.setAttribute("height", "0.2");
+    deleteBtn.setAttribute("width", "0.2");
+    deleteBtn.setAttribute("color", "red");
+    deleteBtn.setAttribute("class", "deleteBtn");
+
+    // Optional: label on delete button
+    const deleteLabel = document.createElement("a-text");
+    deleteLabel.setAttribute("value", "X");
+    deleteLabel.setAttribute("color", "white");
+    deleteLabel.setAttribute("position", "0 0 0.06");
+    deleteLabel.setAttribute("align", "center");
+    deleteLabel.setAttribute("width", "2");
+    deleteBtn.appendChild(deleteLabel);
+
+    // Set group position
+    group.setAttribute("position", `0 ${todoY} -2.9`);
+    group.setAttribute("id", currentId);
+
+    // On click, remove the todo group
+    deleteBtn.setAttribute("onclick", `document.getElementById('${currentId}').remove()`);
+
+    // Build and add to scene
+    group.appendChild(todoText);
+    group.appendChild(deleteBtn);
+    scene.appendChild(group);
+
+    todoY -= 0.25;
+    input.value = "";
+  }
+</script>
+
+
+</body>
+</html>
